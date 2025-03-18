@@ -1,4 +1,4 @@
-import React, { ButtonHTMLAttributes } from 'react';
+import { ButtonHTMLAttributes } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary' | 'secondary' | 'danger';
@@ -6,14 +6,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     fullWidth?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({
+function Button({
     children,
     className,
     variant = 'primary',
     size = 'md',
     fullWidth = false,
     ...props
-}) => {
+}: ButtonProps) {
     const baseClasses = "font-medium rounded focus:outline-none transition-colors";
 
     const variantClasses = {
@@ -38,6 +38,6 @@ export const Button: React.FC<ButtonProps> = ({
             {children}
         </button>
     );
-};
+}
 
 export default Button; 

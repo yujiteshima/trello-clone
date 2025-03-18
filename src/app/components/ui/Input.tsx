@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes } from 'react';
+import { InputHTMLAttributes } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
@@ -6,13 +6,13 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     fullWidth?: boolean;
 }
 
-const Input: React.FC<InputProps> = ({
+function Input({
     label,
     error,
     className = '',
     fullWidth = false,
     ...props
-}) => {
+}: InputProps) {
     return (
         <div className={`mb-4 ${fullWidth ? 'w-full' : ''}`}>
             {label && (
@@ -28,6 +28,6 @@ const Input: React.FC<InputProps> = ({
             {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
         </div>
     );
-};
+}
 
 export default Input; 

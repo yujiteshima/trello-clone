@@ -9,7 +9,7 @@ import Link from 'next/link';
 export default function BoardPage() {
     const params = useParams();
     const boardId = params.id as string;
-    const { boards, currentBoard, setCurrentBoard } = useBoardStore();
+    const { currentBoard, setCurrentBoard } = useBoardStore();
 
     useEffect(() => {
         if (boardId) {

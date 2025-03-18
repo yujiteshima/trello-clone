@@ -6,7 +6,7 @@ interface CardProps {
     onClick?: () => void;
 }
 
-const Card: React.FC<CardProps> = ({ children, className = '', onClick }) => {
+function Card({ children, className = '', onClick }: CardProps) {
     return (
         <div
             className={`bg-white rounded-md shadow-sm p-4 ${className}`}
@@ -15,6 +15,6 @@ const Card: React.FC<CardProps> = ({ children, className = '', onClick }) => {
             {children}
         </div>
     );
-};
+}
 
 export default Card; 

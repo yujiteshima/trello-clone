@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useBoardStore } from './store/boardStore';
 import Button from './components/ui/Button';
 import Card from './components/ui/Card';
