@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { List, Id } from '@/app/types';
 import { useBoardStore } from '@/app/store/boardStore';
 import Button from '../ui/Button';
-import Card from '../ui/Card';
 import SortableCard from './SortableCard';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useDragAndDrop } from '@/app/context/DragAndDropContext';
@@ -24,7 +23,6 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
     const [title, setTitle] = useState(list.title);
     const [isAddingCard, setIsAddingCard] = useState(false);
     const [newCardTitle, setNewCardTitle] = useState('');
-    const { activeId } = useDragAndDrop();
 
     // リストのタイトル編集を保存
     const handleSaveTitle = () => {

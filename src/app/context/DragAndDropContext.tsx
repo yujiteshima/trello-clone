@@ -8,16 +8,12 @@ import {
     DragOverlay,
     useSensor,
     useSensors,
-    PointerSensor,
     TouchSensor,
     DragOverEvent,
     KeyboardSensor,
     MouseSensor,
 } from '@dnd-kit/core';
 import {
-    SortableContext,
-    horizontalListSortingStrategy,
-    verticalListSortingStrategy,
     sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import { restrictToWindowEdges } from '@dnd-kit/modifiers';
@@ -44,7 +40,7 @@ const DragAndDropContext = createContext<DragAndDropContextValue>({
 
 export const useDragAndDrop = () => useContext(DragAndDropContext);
 
-export function DragAndDropProvider({ children, boardId }: DragAndDropContextProps) {
+export function DragAndDropProvider({ children }: DragAndDropContextProps) {
     const { moveList, moveCard, currentBoard } = useBoardStore();
     const [activeId, setActiveId] = useState<Id | null>(null);
     const [activeType, setActiveType] = useState<'list' | 'card' | null>(null);

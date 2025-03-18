@@ -34,7 +34,7 @@ interface BoardState {
     ) => void;
 }
 
-export const useBoardStore = create<BoardState>((set, get) => ({
+export const useBoardStore = create<BoardState>((set) => ({
     boards: getLocalStorage<Board[]>(STORAGE_KEY, []),
     currentBoard: null,
 

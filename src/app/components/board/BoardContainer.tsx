@@ -23,7 +23,7 @@ function BoardContainer({ boardId }: BoardContainerProps) {
     const { currentBoard, addList } = useBoardStore();
     const [isAddingList, setIsAddingList] = useState(false);
     const [newListTitle, setNewListTitle] = useState('');
-    const { isMobile, isTablet } = useBreakpoint();
+    const { isMobile } = useBreakpoint();
 
     // 新しいリストの追加
     const handleAddList = () => {
