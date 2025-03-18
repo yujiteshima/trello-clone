@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useBoardStore } from '@/app/store/boardStore';
 import Button from '@/app/components/ui/Button';
 import Link from 'next/link';
+import BoardContainer from '@/app/components/board/BoardContainer';
 
 export default function BoardPage() {
     const params = useParams();
@@ -43,11 +44,7 @@ export default function BoardPage() {
                 </p>
             </div>
 
-            <div className="border-t border-gray-200 pt-4">
-                <p className="text-center text-gray-500 py-12">
-                    このボードには、次のステップでリストとカードが追加されます。
-                </p>
-            </div>
+            <BoardContainer boardId={boardId} />
         </div>
     );
 } 
