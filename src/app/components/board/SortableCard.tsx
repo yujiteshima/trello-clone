@@ -43,7 +43,11 @@ function SortableCard({ card, listId, boardId, isMobile = false }: SortableCardP
             {...attributes}
             className={`touch-manipulation ${isDragging ? 'border-2 border-blue-400' : ''} ${isMobile ? 'w-full' : ''}`}
         >
-            <div className="cursor-grab active:cursor-grabbing" {...listeners}>
+            <div
+                className="cursor-grab active:cursor-grabbing"
+                style={{ touchAction: 'none' }}
+                {...listeners}
+            >
                 <CardItem card={card} listId={listId} boardId={boardId} isMobile={isMobile} />
             </div>
         </div>

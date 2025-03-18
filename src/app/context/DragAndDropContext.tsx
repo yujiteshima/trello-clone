@@ -12,6 +12,7 @@ import {
     TouchSensor,
     DragOverEvent,
     KeyboardSensor,
+    MouseSensor,
 } from '@dnd-kit/core';
 import {
     SortableContext,
@@ -51,17 +52,24 @@ export function DragAndDropProvider({ children, boardId }: DragAndDropContextPro
 
     // マウスとタッチ操作のセンサーを設定
     const sensors = useSensors(
-        useSensor(PointerSensor, {
+        // PCでのマウス操作用センサー
+        useSensor(MouseSensor, {
+            // ドラッグの開始に必要な距離を短く設定
             activationConstraint: {
-                distance: 5, // より低い値にして、ドラッグ操作を検出しやすくする
+                distance: 3,
             },
         }),
+
+        // モバイルでのタッチ操作用センサー - モバイルでの競合を避けるため調整
         useSensor(TouchSensor, {
+            // タッチ操作の検出設定
             activationConstraint: {
-                delay: 150, // タッチして150ms待機するとドラッグ開始（短くした）
-                tolerance: 5, // 5px以上の移動でドラッグとみなす
+                delay: 250, // 長押し時間（ミリ秒）- スクロールとの区別のため長めに設定
+                tolerance: 8, // ドラッグ開始までの許容移動ピクセル数（大きめに設定）
             },
         }),
+
+        // キーボード操作用センサー
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
         })
@@ -69,6 +77,11 @@ export function DragAndDropProvider({ children, boardId }: DragAndDropContextPro
 
     // ドラッグ開始時の処理
     const handleDragStart = (event: DragStartEvent) => {
+        // ドラッグ中はページスクロールを防止
+        document.body.style.overflow = 'hidden';
+        // ドラッグ中のクラスを追加
+        document.body.classList.add('dragging-active');
+
         const { active } = event;
         const activeId = active.id as Id;
 
@@ -109,6 +122,11 @@ export function DragAndDropProvider({ children, boardId }: DragAndDropContextPro
 
     // ドラッグ終了時の処理
     const handleDragEnd = (event: DragEndEvent) => {
+        // ドラッグ終了時にページスクロールを元に戻す
+        document.body.style.overflow = '';
+        // ドラッグ中のクラスを削除
+        document.body.classList.remove('dragging-active');
+
         const { active, over } = event;
 
         if (!over) {
@@ -136,6 +154,15 @@ export function DragAndDropProvider({ children, boardId }: DragAndDropContextPro
             handleCardDragEnd(activeId, overId, activeListId, overListId, overType);
         }
 
+        resetDragState();
+    };
+
+    // ドラッグのキャンセル処理
+    const handleDragCancel = () => {
+        // ドラッグキャンセル時もスクロールを元に戻す
+        document.body.style.overflow = '';
+        // ドラッグ中のクラスを削除
+        document.body.classList.remove('dragging-active');
         resetDragState();
     };
 
@@ -216,18 +243,17 @@ export function DragAndDropProvider({ children, boardId }: DragAndDropContextPro
                 onDragStart={handleDragStart}
                 onDragOver={handleDragOver}
                 onDragEnd={handleDragEnd}
+                onDragCancel={handleDragCancel}
                 modifiers={[restrictToWindowEdges]}
             >
                 {children}
 
-                {/* オーバーレイは将来的に実装 */}
                 <DragOverlay adjustScale={true} dropAnimation={{
                     duration: 300,
                     easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
                 }}>
                     {activeId && activeType ? (
                         <div className="opacity-80 bg-white rounded shadow-lg">
-                            {/* ドラッグ中の要素のプレビュー */}
                             <div className="p-2">
                                 {activeType === 'list' ? '移動中のリスト' : '移動中のカード'}
                             </div>

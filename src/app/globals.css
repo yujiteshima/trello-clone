@@ -24,3 +24,28 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* モバイルでのドラッグアンドドロップ最適化 */
+html,
+body {
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+  /* スクロールチェーンを防止 */
+  touch-action: manipulation;
+  /* ダブルタップズームを無効化 */
+}
+
+/* ドラッグアンドドロップ中のスタイル */
+.dragging-active {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* タッチデバイス最適化 */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  /* スタイルのちらつきを防止 */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}

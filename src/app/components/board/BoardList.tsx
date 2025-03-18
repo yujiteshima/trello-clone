@@ -58,6 +58,7 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
         >
             <div
                 className="flex items-center justify-between mb-2 p-2 cursor-grab active:cursor-grabbing"
+                style={{ touchAction: 'none' }}
                 {...dragHandleProps}
             >
                 {isEditing ? (
