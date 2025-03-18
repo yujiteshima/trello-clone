@@ -40,10 +40,11 @@ function SortableCard({ card, listId, boardId }: SortableCardProps) {
             ref={setNodeRef}
             style={style}
             {...attributes}
-            {...listeners}
-            className="touch-manipulation"
+            className={`touch-manipulation ${isDragging ? 'border-2 border-blue-400' : ''}`}
         >
-            <CardItem card={card} listId={listId} boardId={boardId} />
+            <div className="cursor-grab active:cursor-grabbing" {...listeners}>
+                <CardItem card={card} listId={listId} boardId={boardId} />
+            </div>
         </div>
     );
 }

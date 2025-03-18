@@ -8,13 +8,16 @@ import Card from '../ui/Card';
 import SortableCard from './SortableCard';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useDragAndDrop } from '@/app/context/DragAndDropContext';
+import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
 interface BoardListProps {
     list: List;
     boardId: Id;
+    dragHandleProps?: SyntheticListenerMap;
+    isDragging?: boolean;
 }
 
-function BoardList({ list, boardId }: BoardListProps) {
+function BoardList({ list, boardId, dragHandleProps, isDragging }: BoardListProps) {
     const { updateList, deleteList, addCard } = useBoardStore();
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(list.title);
@@ -40,8 +43,11 @@ function BoardList({ list, boardId }: BoardListProps) {
     };
 
     return (
-        <div className="w-72 shrink-0 bg-gray-100 rounded-md p-2 flex flex-col h-[calc(100vh-200px)]">
-            <div className="flex items-center justify-between mb-2 p-2">
+        <div className={`w-72 shrink-0 bg-gray-100 rounded-md p-2 flex flex-col h-[calc(100vh-200px)] ${isDragging ? 'border-2 border-blue-400' : ''}`}>
+            <div
+                className="flex items-center justify-between mb-2 p-2 cursor-grab active:cursor-grabbing"
+                {...dragHandleProps}
+            >
                 {isEditing ? (
                     <div className="flex w-full">
                         <input

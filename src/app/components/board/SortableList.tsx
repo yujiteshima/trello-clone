@@ -37,14 +37,15 @@ function SortableList({ list, boardId }: SortableListProps) {
         <div
             ref={setNodeRef}
             style={style}
+            className="touch-manipulation"
             {...attributes}
         >
-            <div
-                className="cursor-grab active:cursor-grabbing"
-                {...listeners}
-            >
-                <BoardList list={list} boardId={boardId} />
-            </div>
+            <BoardList
+                list={list}
+                boardId={boardId}
+                dragHandleProps={listeners}
+                isDragging={isDragging}
+            />
         </div>
     );
 }

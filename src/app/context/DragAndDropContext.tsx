@@ -10,11 +10,14 @@ import {
     useSensors,
     PointerSensor,
     TouchSensor,
+    DragOverEvent,
+    KeyboardSensor,
 } from '@dnd-kit/core';
 import {
     SortableContext,
     horizontalListSortingStrategy,
     verticalListSortingStrategy,
+    sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { Id } from '../types';
@@ -50,14 +53,17 @@ export function DragAndDropProvider({ children, boardId }: DragAndDropContextPro
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 8, // ドラッグ開始までに8px移動する必要があります
+                distance: 5, // より低い値にして、ドラッグ操作を検出しやすくする
             },
         }),
         useSensor(TouchSensor, {
             activationConstraint: {
-                delay: 250, // タッチして250ms待機するとドラッグ開始
+                delay: 150, // タッチして150ms待機するとドラッグ開始（短くした）
                 tolerance: 5, // 5px以上の移動でドラッグとみなす
             },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
         })
     );
 
@@ -75,6 +81,29 @@ export function DragAndDropProvider({ children, boardId }: DragAndDropContextPro
 
         if (type === 'card') {
             setActiveListId(listId);
+        }
+    };
+
+    // ドラッグオーバー時の処理を追加
+    const handleDragOver = (event: DragOverEvent) => {
+        const { active, over } = event;
+
+        if (!over) return;
+
+        const activeId = active.id as Id;
+        const overId = over.id as Id;
+
+        if (activeId === overId) return;
+
+        const activeType = active.data.current?.type as 'list' | 'card';
+        const overType = over.data.current?.type as 'list' | 'card';
+
+        // カードをリストにドラッグした場合の処理
+        if (activeType === 'card' && overType === 'list') {
+            const activeListId = active.data.current?.listId as Id;
+            if (activeListId === overId) return; // 同じリスト内なら何もしない
+
+            // ここで視覚的なフィードバックを提供できます
         }
     };
 
@@ -185,16 +214,23 @@ export function DragAndDropProvider({ children, boardId }: DragAndDropContextPro
             <DndContext
                 sensors={sensors}
                 onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
                 onDragEnd={handleDragEnd}
                 modifiers={[restrictToWindowEdges]}
             >
                 {children}
 
                 {/* オーバーレイは将来的に実装 */}
-                <DragOverlay>
+                <DragOverlay adjustScale={true} dropAnimation={{
+                    duration: 300,
+                    easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+                }}>
                     {activeId && activeType ? (
-                        <div className="opacity-50">
+                        <div className="opacity-80 bg-white rounded shadow-lg">
                             {/* ドラッグ中の要素のプレビュー */}
+                            <div className="p-2">
+                                {activeType === 'list' ? '移動中のリスト' : '移動中のカード'}
+                            </div>
                         </div>
                     ) : null}
                 </DragOverlay>
