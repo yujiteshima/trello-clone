@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { List, Card as CardType, Id } from '@/app/types';
+import { List, Id } from '@/app/types';
 import { useBoardStore } from '@/app/store/boardStore';
-import Card from '../ui/Card';
 import Button from '../ui/Button';
-import CardItem from './CardItem';
+import Card from '../ui/Card';
+import SortableCard from './SortableCard';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useDragAndDrop } from '@/app/context/DragAndDropContext';
 
 interface BoardListProps {
     list: List;
@@ -18,6 +20,7 @@ function BoardList({ list, boardId }: BoardListProps) {
     const [title, setTitle] = useState(list.title);
     const [isAddingCard, setIsAddingCard] = useState(false);
     const [newCardTitle, setNewCardTitle] = useState('');
+    const { activeId } = useDragAndDrop();
 
     // リストのタイトル編集を保存
     const handleSaveTitle = () => {
@@ -75,15 +78,24 @@ function BoardList({ list, boardId }: BoardListProps) {
                 )}
             </div>
 
-            <div className="flex-grow overflow-y-auto space-y-2 p-1">
-                {list.cards.map((card) => (
-                    <CardItem
-                        key={card.id}
-                        card={card}
-                        listId={list.id}
-                        boardId={boardId}
-                    />
-                ))}
+            <div
+                className="flex-grow overflow-y-auto space-y-2 p-1"
+                data-type="list"
+                data-id={list.id}
+            >
+                <SortableContext
+                    items={list.cards.map(card => card.id)}
+                    strategy={verticalListSortingStrategy}
+                >
+                    {list.cards.map((card) => (
+                        <SortableCard
+                            key={card.id}
+                            card={card}
+                            listId={list.id}
+                            boardId={boardId}
+                        />
+                    ))}
+                </SortableContext>
             </div>
 
             <div className="mt-2 p-1">
