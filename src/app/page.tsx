@@ -11,7 +11,7 @@ export default function Home() {
   const { boards, createBoard } = useBoardStore();
   const [newBoardTitle, setNewBoardTitle] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-  const { isMobile, isTablet } = useBreakpoint();
+  const { isMobile } = useBreakpoint();
 
   // ボードの作成を処理
   const handleCreateBoard = () => {
