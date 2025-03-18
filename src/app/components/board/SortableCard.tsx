@@ -9,9 +9,10 @@ interface SortableCardProps {
     card: CardType;
     listId: Id;
     boardId: Id;
+    isMobile?: boolean;
 }
 
-function SortableCard({ card, listId, boardId }: SortableCardProps) {
+function SortableCard({ card, listId, boardId, isMobile = false }: SortableCardProps) {
     const {
         attributes,
         listeners,
@@ -40,10 +41,10 @@ function SortableCard({ card, listId, boardId }: SortableCardProps) {
             ref={setNodeRef}
             style={style}
             {...attributes}
-            className={`touch-manipulation ${isDragging ? 'border-2 border-blue-400' : ''}`}
+            className={`touch-manipulation ${isDragging ? 'border-2 border-blue-400' : ''} ${isMobile ? 'w-full' : ''}`}
         >
             <div className="cursor-grab active:cursor-grabbing" {...listeners}>
-                <CardItem card={card} listId={listId} boardId={boardId} />
+                <CardItem card={card} listId={listId} boardId={boardId} isMobile={isMobile} />
             </div>
         </div>
     );

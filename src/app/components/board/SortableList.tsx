@@ -8,9 +8,10 @@ import BoardList from './BoardList';
 interface SortableListProps {
     list: List;
     boardId: Id;
+    isMobile?: boolean;
 }
 
-function SortableList({ list, boardId }: SortableListProps) {
+function SortableList({ list, boardId, isMobile = false }: SortableListProps) {
     const {
         attributes,
         listeners,
@@ -31,13 +32,14 @@ function SortableList({ list, boardId }: SortableListProps) {
         transition,
         opacity: isDragging ? 0.5 : 1,
         zIndex: isDragging ? 1 : 0,
+        width: isMobile ? '100%' : undefined,
     };
 
     return (
         <div
             ref={setNodeRef}
             style={style}
-            className="touch-manipulation"
+            className={`touch-manipulation ${isMobile ? 'w-full' : ''}`}
             {...attributes}
         >
             <BoardList
@@ -45,6 +47,7 @@ function SortableList({ list, boardId }: SortableListProps) {
                 boardId={boardId}
                 dragHandleProps={listeners}
                 isDragging={isDragging}
+                isMobile={isMobile}
             />
         </div>
     );
