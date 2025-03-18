@@ -15,9 +15,10 @@ interface BoardListProps {
     boardId: Id;
     dragHandleProps?: SyntheticListenerMap;
     isDragging?: boolean;
+    isMobile?: boolean;
 }
 
-function BoardList({ list, boardId, dragHandleProps, isDragging }: BoardListProps) {
+function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = false }: BoardListProps) {
     const { updateList, deleteList, addCard } = useBoardStore();
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(list.title);
@@ -43,9 +44,21 @@ function BoardList({ list, boardId, dragHandleProps, isDragging }: BoardListProp
     };
 
     return (
-        <div className={`w-72 shrink-0 bg-gray-100 rounded-md p-2 flex flex-col h-[calc(100vh-200px)] ${isDragging ? 'border-2 border-blue-400' : ''}`}>
+        <div
+            className={`
+                ${isMobile ? 'w-full' : 'w-72 shrink-0'} 
+                bg-gray-100 
+                rounded-md 
+                p-2 
+                flex 
+                flex-col 
+                ${isMobile ? 'h-auto min-h-64' : 'h-[calc(100vh-200px)]'}
+                ${isDragging ? 'border-2 border-blue-400' : ''}
+            `}
+        >
             <div
                 className="flex items-center justify-between mb-2 p-2 cursor-grab active:cursor-grabbing"
+                style={{ touchAction: 'none' }}
                 {...dragHandleProps}
             >
                 {isEditing ? (
@@ -73,19 +86,30 @@ function BoardList({ list, boardId, dragHandleProps, isDragging }: BoardListProp
                         >
                             {list.title}
                         </h3>
-                        <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => deleteList(boardId, list.id)}
-                        >
-                            削除
-                        </Button>
+                        <div className="flex items-center">
+                            <div className="text-xs text-gray-500 mr-2">
+                                {list.cards.length} カード
+                            </div>
+                            <Button
+                                size="sm"
+                                variant="danger"
+                                onClick={() => deleteList(boardId, list.id)}
+                            >
+                                削除
+                            </Button>
+                        </div>
                     </>
                 )}
             </div>
 
             <div
-                className="flex-grow overflow-y-auto space-y-2 p-1"
+                className={`
+                    flex-grow 
+                    overflow-y-auto 
+                    space-y-2 
+                    p-1
+                    ${isMobile ? 'max-h-64' : ''}
+                `}
                 data-type="list"
                 data-id={list.id}
             >
@@ -99,6 +123,7 @@ function BoardList({ list, boardId, dragHandleProps, isDragging }: BoardListProp
                             card={card}
                             listId={list.id}
                             boardId={boardId}
+                            isMobile={isMobile}
                         />
                     ))}
                 </SortableContext>
@@ -115,8 +140,14 @@ function BoardList({ list, boardId, dragHandleProps, isDragging }: BoardListProp
                             onChange={(e) => setNewCardTitle(e.target.value)}
                             autoFocus
                         />
-                        <div className="flex space-x-2">
-                            <Button size="sm" onClick={handleAddCard}>追加</Button>
+                        <div className={`${isMobile ? 'flex flex-col space-y-2' : 'flex space-x-2'}`}>
+                            <Button
+                                size="sm"
+                                onClick={handleAddCard}
+                                fullWidth={isMobile}
+                            >
+                                追加
+                            </Button>
                             <Button
                                 size="sm"
                                 variant="secondary"
@@ -124,6 +155,7 @@ function BoardList({ list, boardId, dragHandleProps, isDragging }: BoardListProp
                                     setIsAddingCard(false);
                                     setNewCardTitle('');
                                 }}
+                                fullWidth={isMobile}
                             >
                                 キャンセル
                             </Button>

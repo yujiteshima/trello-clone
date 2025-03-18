@@ -6,11 +6,13 @@ import { useBoardStore } from '@/app/store/boardStore';
 import Button from '@/app/components/ui/Button';
 import Link from 'next/link';
 import BoardContainer from '@/app/components/board/BoardContainer';
+import { useBreakpoint } from '@/app/hooks/useMediaQuery';
 
 export default function BoardPage() {
     const params = useParams();
     const boardId = params.id as string;
     const { currentBoard, setCurrentBoard } = useBoardStore();
+    const { isMobile } = useBreakpoint();
 
     useEffect(() => {
         if (boardId) {
@@ -31,10 +33,18 @@ export default function BoardPage() {
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className={`
+                ${isMobile ? 'flex flex-col space-y-2' : 'flex items-center justify-between'} 
+                mb-6
+            `}>
                 <h1 className="text-2xl font-bold">{currentBoard.title}</h1>
                 <Link href="/">
-                    <Button variant="secondary">ボード一覧に戻る</Button>
+                    <Button
+                        variant="secondary"
+                        fullWidth={isMobile}
+                    >
+                        ボード一覧に戻る
+                    </Button>
                 </Link>
             </div>
 

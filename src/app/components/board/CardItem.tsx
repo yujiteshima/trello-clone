@@ -10,9 +10,10 @@ interface CardItemProps {
     card: CardType;
     listId: Id;
     boardId: Id;
+    isMobile?: boolean;
 }
 
-function CardItem({ card, listId, boardId }: CardItemProps) {
+function CardItem({ card, listId, boardId, isMobile = false }: CardItemProps) {
     const { updateCard, deleteCard } = useBoardStore();
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(card.title);
@@ -31,7 +32,7 @@ function CardItem({ card, listId, boardId }: CardItemProps) {
 
     return (
         <Card
-            className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+            className={`shadow-sm hover:shadow-md transition-shadow cursor-pointer ${isMobile ? 'w-full' : ''}`}
             onClick={() => !isEditing && setIsEditing(true)}
         >
             {isEditing ? (
@@ -59,9 +60,16 @@ function CardItem({ card, listId, boardId }: CardItemProps) {
                             onChange={(e) => setDescription(e.target.value)}
                         />
                     </div>
-                    <div className="flex justify-between">
-                        <div className="flex space-x-2">
-                            <Button size="sm" onClick={handleSave}>保存</Button>
+                    <div className={`${isMobile ? 'flex flex-col space-y-2' : 'flex justify-between'}`}>
+                        <div className={`${isMobile ? '' : 'flex space-x-2'}`}>
+                            <Button
+                                size="sm"
+                                onClick={handleSave}
+                                fullWidth={isMobile}
+                                className={isMobile ? 'mb-2' : ''}
+                            >
+                                保存
+                            </Button>
                             <Button
                                 size="sm"
                                 variant="secondary"
@@ -70,6 +78,7 @@ function CardItem({ card, listId, boardId }: CardItemProps) {
                                     setTitle(card.title);
                                     setDescription(card.description || '');
                                 }}
+                                fullWidth={isMobile}
                             >
                                 キャンセル
                             </Button>
@@ -78,6 +87,8 @@ function CardItem({ card, listId, boardId }: CardItemProps) {
                             size="sm"
                             variant="danger"
                             onClick={() => deleteCard(boardId, listId, card.id)}
+                            fullWidth={isMobile}
+                            className={isMobile ? 'mt-4' : ''}
                         >
                             削除
                         </Button>
