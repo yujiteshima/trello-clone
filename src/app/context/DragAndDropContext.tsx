@@ -13,7 +13,6 @@ import {
     KeyboardSensor,
     MouseSensor,
     MeasuringStrategy,
-    pointerWithin,
 } from '@dnd-kit/core';
 import {
     sortableKeyboardCoordinates,
@@ -36,7 +35,7 @@ interface DragAndDropContextValue {
     overListId: Id | null;
     overCardId: Id | null;
     overIndex: number | null;
-    placeholderStyle: any | null;
+    placeholderStyle: Record<string, string | number> | null;
 }
 
 const DragAndDropContext = createContext<DragAndDropContextValue>({
@@ -59,7 +58,7 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
     const [overListId, setOverListId] = useState<Id | null>(null);
     const [overCardId, setOverCardId] = useState<Id | null>(null);
     const [overIndex, setOverIndex] = useState<number | null>(null);
-    const [placeholderStyle, setPlaceholderStyle] = useState<any>(null);
+    const [placeholderStyle, setPlaceholderStyle] = useState<Record<string, string | number> | null>(null);
 
     // マウスとタッチ操作のセンサーを設定
     const sensors = useSensors(
@@ -130,13 +129,8 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
 
         // 現在のカードの位置とサイズを取得して視覚的なフィードバックに使用
         if (activeType === 'card') {
-            const overNodeRect = over.rect;
-
             // カードをリストにドラッグした場合の処理
             if (overType === 'list') {
-                const activeListId = active.data.current?.listId as Id;
-                const overList = currentBoard?.lists.find(list => list.id === overId);
-
                 // リストのID変更を適用
                 setOverListId(overId);
                 setOverCardId(null);
@@ -166,16 +160,15 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
 
             // カードを別のカードにドラッグした場合
             if (overType === 'card') {
-                const activeListId = active.data.current?.listId as Id;
-                const overListId = over.data.current?.listId as Id;
+                const sourceListId = active.data.current?.listId as Id;
+                const targetListId = over.data.current?.listId as Id;
 
-                setOverListId(overListId);
+                setOverListId(targetListId);
                 setOverCardId(overId);
 
-                // プレースホルダースタイルを設定 - より単純な方法で上下を決定
-                const isBelowMiddle = true; // 常に下に挿入するようにシンプル化
-                const overList = currentBoard?.lists.find(list => list.id === overListId);
-                const overCardIndex = overList?.cards.findIndex(card => card.id === overId) || 0;
+                // 対象のカード情報を取得
+                const targetList = currentBoard?.lists.find(list => list.id === targetListId);
+                const overCardIndex = targetList?.cards.findIndex(card => card.id === overId) || 0;
 
                 // 挿入位置インデックスを設定（常に下）
                 setOverIndex(overCardIndex + 1);
@@ -195,8 +188,8 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
                 });
 
                 // リスト間のドラッグなら、現在のリストIDを更新
-                if (activeListId !== overListId) {
-                    setActiveListId(overListId);
+                if (sourceListId !== targetListId) {
+                    setActiveListId(targetListId);
                 }
             }
         }
