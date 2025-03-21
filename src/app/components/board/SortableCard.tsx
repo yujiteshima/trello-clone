@@ -41,7 +41,7 @@ function SortableCard({ card, listId, boardId, isMobile = false }: SortableCardP
             ref={setNodeRef}
             style={style}
             {...attributes}
-            className={`touch-manipulation ${isDragging ? 'border-2 border-blue-400' : ''} ${isMobile ? 'w-full' : ''}`}
+            className={`touch-manipulation transition-all duration-300 max-w-[260px] w-full ${isDragging ? 'border-2 border-blue-400' : ''}`}
         >
             <div
                 className="cursor-grab active:cursor-grabbing"

@@ -12,6 +12,8 @@ import {
     DragOverEvent,
     KeyboardSensor,
     MouseSensor,
+    MeasuringStrategy,
+    pointerWithin,
 } from '@dnd-kit/core';
 import {
     sortableKeyboardCoordinates,
@@ -20,6 +22,7 @@ import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { Id } from '../types';
 import { useBoardStore } from '../store/boardStore';
 import { useState } from 'react';
+import CardItem from '../components/board/CardItem';
 
 interface DragAndDropContextProps {
     children: ReactNode;
@@ -30,12 +33,20 @@ interface DragAndDropContextValue {
     activeId: Id | null;
     activeType: 'list' | 'card' | null;
     activeListId: Id | null;
+    overListId: Id | null;
+    overCardId: Id | null;
+    overIndex: number | null;
+    placeholderStyle: any | null;
 }
 
 const DragAndDropContext = createContext<DragAndDropContextValue>({
     activeId: null,
     activeType: null,
     activeListId: null,
+    overListId: null,
+    overCardId: null,
+    overIndex: null,
+    placeholderStyle: null,
 });
 
 export const useDragAndDrop = () => useContext(DragAndDropContext);
@@ -45,6 +56,10 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
     const [activeId, setActiveId] = useState<Id | null>(null);
     const [activeType, setActiveType] = useState<'list' | 'card' | null>(null);
     const [activeListId, setActiveListId] = useState<Id | null>(null);
+    const [overListId, setOverListId] = useState<Id | null>(null);
+    const [overCardId, setOverCardId] = useState<Id | null>(null);
+    const [overIndex, setOverIndex] = useState<number | null>(null);
+    const [placeholderStyle, setPlaceholderStyle] = useState<any>(null);
 
     // マウスとタッチ操作のセンサーを設定
     const sensors = useSensors(
@@ -97,7 +112,13 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
     const handleDragOver = (event: DragOverEvent) => {
         const { active, over } = event;
 
-        if (!over) return;
+        if (!over) {
+            setOverListId(null);
+            setOverCardId(null);
+            setOverIndex(null);
+            setPlaceholderStyle(null);
+            return;
+        }
 
         const activeId = active.id as Id;
         const overId = over.id as Id;
@@ -107,12 +128,77 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
         const activeType = active.data.current?.type as 'list' | 'card';
         const overType = over.data.current?.type as 'list' | 'card';
 
-        // カードをリストにドラッグした場合の処理
-        if (activeType === 'card' && overType === 'list') {
-            const activeListId = active.data.current?.listId as Id;
-            if (activeListId === overId) return; // 同じリスト内なら何もしない
+        // 現在のカードの位置とサイズを取得して視覚的なフィードバックに使用
+        if (activeType === 'card') {
+            const overNodeRect = over.rect;
 
-            // ここで視覚的なフィードバックを提供できます
+            // カードをリストにドラッグした場合の処理
+            if (overType === 'list') {
+                const activeListId = active.data.current?.listId as Id;
+                const overList = currentBoard?.lists.find(list => list.id === overId);
+
+                // リストのID変更を適用
+                setOverListId(overId);
+                setOverCardId(null);
+
+                // リストの最後にカードを追加するためのプレースホルダーを表示
+                setOverIndex(
+                    currentBoard?.lists.find(list => list.id === overId)?.cards.length || 0
+                );
+
+                // プレースホルダーのスタイルを設定
+                setPlaceholderStyle({
+                    minHeight: '70px',
+                    maxWidth: '260px',
+                    width: '100%',
+                    margin: '8px auto',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    border: '2px dashed rgb(59, 130, 246)',
+                    borderRadius: '0.375rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                });
+
+                // データ上で実際に移動はドロップ時に行うが、視覚的なフィードバックを強化
+                setActiveListId(overId);
+            }
+
+            // カードを別のカードにドラッグした場合
+            if (overType === 'card') {
+                const activeListId = active.data.current?.listId as Id;
+                const overListId = over.data.current?.listId as Id;
+
+                setOverListId(overListId);
+                setOverCardId(overId);
+
+                // プレースホルダースタイルを設定 - より単純な方法で上下を決定
+                const isBelowMiddle = true; // 常に下に挿入するようにシンプル化
+                const overList = currentBoard?.lists.find(list => list.id === overListId);
+                const overCardIndex = overList?.cards.findIndex(card => card.id === overId) || 0;
+
+                // 挿入位置インデックスを設定（常に下）
+                setOverIndex(overCardIndex + 1);
+
+                // リスト最後尾に追加する場合と同じスタイルを使用
+                setPlaceholderStyle({
+                    minHeight: '70px',
+                    maxWidth: '260px',
+                    width: '100%',
+                    margin: '8px auto',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    border: '2px dashed rgb(59, 130, 246)',
+                    borderRadius: '0.375rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                });
+
+                // リスト間のドラッグなら、現在のリストIDを更新
+                if (activeListId !== overListId) {
+                    setActiveListId(overListId);
+                }
+            }
         }
     };
 
@@ -122,6 +208,11 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
         document.body.style.overflow = '';
         // ドラッグ中のクラスを削除
         document.body.classList.remove('dragging-active');
+        // プレースホルダーの状態をリセット
+        setOverListId(null);
+        setOverCardId(null);
+        setOverIndex(null);
+        setPlaceholderStyle(null);
 
         const { active, over } = event;
 
@@ -194,6 +285,8 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
             const overList = currentBoard.lists.find(list => list.id === overId);
             if (!overList) return;
 
+            // 視覚的に表示されているプレースホルダーの位置（overIndex）と一致させる
+            // リストの場合は最後に追加するので問題ないはず
             moveCard(
                 currentBoard.id,
                 activeListId,
@@ -208,14 +301,21 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
         const overList = currentBoard.lists.find(list => list.id === overListId);
         if (!overList) return;
 
-        const overIndex = overList.cards.findIndex(card => card.id === overId);
+        // 視覚的なフィードバックと実際の挿入位置を一致させるため、
+        // overIndexが存在する場合はそれを使用し、存在しない場合のみoverId（カードのID）から位置を計算
+        let insertPosition;
+        if (overIndex !== null) {
+            insertPosition = overIndex;
+        } else {
+            insertPosition = overList.cards.findIndex(card => card.id === overId);
+        }
 
         moveCard(
             currentBoard.id,
             activeListId,
             overListId,
             activeIndex,
-            overIndex
+            insertPosition
         );
     };
 
@@ -232,6 +332,10 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
                 activeId,
                 activeType,
                 activeListId,
+                overListId,
+                overCardId,
+                overIndex,
+                placeholderStyle
             }}
         >
             <DndContext
@@ -241,6 +345,11 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
                 onDragEnd={handleDragEnd}
                 onDragCancel={handleDragCancel}
                 modifiers={[restrictToWindowEdges]}
+                measuring={{
+                    droppable: {
+                        strategy: MeasuringStrategy.Always
+                    },
+                }}
             >
                 {children}
 
@@ -248,22 +357,39 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
                     duration: 300,
                     easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
                 }}>
-                    {activeId && activeType ? (
-                        <div className="opacity-80 bg-white rounded shadow-lg transform transition-transform duration-300 ease-in-out">
-                            <div className="p-2">
-                                {activeType === 'list' ? '移動中のリスト' : '移動中のカード'}
-                            </div>
+                    {activeId && activeType === 'card' && activeListId ? (
+                        <div className="max-w-[260px] w-full opacity-90 bg-white rounded shadow-lg transform transition-transform duration-300 ease-in-out overflow-hidden" style={{ maxHeight: 'min(80vh, 400px)' }}>
+                            {currentBoard && (
+                                <CardItem
+                                    card={currentBoard.lists
+                                        .find(list => list.id === activeListId)?.cards
+                                        .find(card => card.id === activeId) || {
+                                        id: activeId,
+                                        title: '移動中のカード',
+                                        createdAt: new Date(),
+                                        updatedAt: new Date()
+                                    }}
+                                    listId={activeListId}
+                                    boardId={currentBoard.id}
+                                />
+                            )}
+                        </div>
+                    ) : activeId && activeType === 'list' ? (
+                        <div className="w-72 opacity-80 bg-white rounded shadow-lg transform transition-transform duration-300 ease-in-out">
+                            {currentBoard && (
+                                <div className="p-3 bg-gray-100 rounded border border-gray-200">
+                                    <h3 className="font-semibold text-gray-800">
+                                        {currentBoard.lists.find(list => list.id === activeId)?.title || '移動中のリスト'}
+                                    </h3>
+                                    <div className="mt-2 p-2 bg-white rounded border border-gray-200">
+                                        <div className="h-4 w-full bg-gray-200 rounded"></div>
+                                        <div className="h-4 w-3/4 bg-gray-200 rounded mt-2"></div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     ) : null}
                 </DragOverlay>
-
-                {/* ドラッグ中のインジケーター */}
-                {activeId && (
-                    <div className="absolute inset-0 pointer-events-none">
-                        <div className="border-2 border-dashed border-blue-400 rounded-md"></div>
-                    </div>
-                )}
-
             </DndContext>
         </DragAndDropContext.Provider>
     );
