@@ -77,8 +77,8 @@ function BoardContainer({ boardId }: BoardContainerProps) {
 
     return (
         <DragAndDropProvider boardId={boardId}>
-            <div className="space-y-4">
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2 sticky top-0 z-10 bg-white py-2">
+            <div className="space-y-2">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-2 gap-2 sticky top-0 z-10 bg-white py-1">
                     <div>
                         <h2 className="text-xl font-bold">{currentBoard.title}のリスト</h2>
                         {isMobile && <TotalCards />}
@@ -128,8 +128,8 @@ function BoardContainer({ boardId }: BoardContainerProps) {
 
                 {/* TanStack Table データ表示 - デスクトップとタブレットのみ */}
                 {!isMobile && (
-                    <div className="bg-white p-4 rounded-md shadow-sm overflow-x-auto mb-4">
-                        <h3 className="text-lg font-semibold mb-3">リスト概要</h3>
+                    <div className="bg-white p-3 rounded-md shadow-sm overflow-x-auto mb-2">
+                        <h3 className="text-lg font-semibold mb-2">リスト概要</h3>
                         <table className="min-w-full border-collapse">
                             <thead>
                                 {table.getHeaderGroups().map(headerGroup => (
@@ -175,7 +175,7 @@ function BoardContainer({ boardId }: BoardContainerProps) {
                 <div className={`
                     flex 
                     ${isMobile ? 'flex-col space-y-4' : 'space-x-4 overflow-x-auto'} 
-                    pb-4 mt-2
+                    pb-2 mt-1
                 `}>
                     <SortableContext
                         items={currentBoard.lists.map(list => list.id)}

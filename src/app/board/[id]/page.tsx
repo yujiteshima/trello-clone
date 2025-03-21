@@ -35,7 +35,7 @@ export default function BoardPage() {
         <div>
             <div className={`
                 ${isMobile ? 'flex flex-col space-y-2' : 'flex items-center justify-between'} 
-                mb-6
+                mb-4
             `}>
                 <h1 className="text-2xl font-bold">{currentBoard.title}</h1>
                 <Link href="/">
@@ -48,7 +48,7 @@ export default function BoardPage() {
                 </Link>
             </div>
 
-            <div className="mb-4">
+            <div className="mb-2">
                 <p className="text-sm text-gray-500">
                     作成日: {new Date(currentBoard.createdAt).toLocaleDateString()}
                 </p>
