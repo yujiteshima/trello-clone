@@ -32,7 +32,7 @@ function CardItem({ card, listId, boardId, isMobile = false }: CardItemProps) {
 
     return (
         <Card
-            className={`shadow-sm hover:shadow-md transition-shadow cursor-pointer ${isMobile ? 'w-full' : ''}`}
+            className={`shadow-sm hover:shadow-md transition-shadow cursor-pointer max-w-[260px] w-full overflow-hidden text-ellipsis`}
             onClick={() => !isEditing && setIsEditing(true)}
         >
             {isEditing ? (
@@ -95,10 +95,10 @@ function CardItem({ card, listId, boardId, isMobile = false }: CardItemProps) {
                     </div>
                 </div>
             ) : (
-                <div>
-                    <h4 className="font-medium">{card.title}</h4>
+                <div className="overflow-hidden">
+                    <h4 className="font-medium truncate">{card.title}</h4>
                     {card.description && (
-                        <p className="text-sm text-gray-600 mt-1">{card.description}</p>
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2 overflow-hidden text-ellipsis">{card.description}</p>
                     )}
                 </div>
             )}

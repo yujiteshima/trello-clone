@@ -7,6 +7,8 @@ import Button from '../ui/Button';
 import SortableCard from './SortableCard';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
+import { useDragAndDrop } from '@/app/context/DragAndDropContext';
+import React from 'react';
 
 interface BoardListProps {
     list: List;
@@ -18,6 +20,7 @@ interface BoardListProps {
 
 function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = false }: BoardListProps) {
     const { updateList, deleteList, addCard } = useBoardStore();
+    const { activeType, activeId, overListId, overIndex, placeholderStyle } = useDragAndDrop();
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(list.title);
     const [isAddingCard, setIsAddingCard] = useState(false);
@@ -43,14 +46,15 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
     return (
         <div
             className={`
-                ${isMobile ? 'w-full' : 'w-72 shrink-0'} 
+                ${isMobile ? 'w-full max-w-[280px]' : 'w-[280px] shrink-0'} 
                 bg-gray-100 
                 rounded-md 
                 p-2 
                 flex 
                 flex-col 
-                ${isMobile ? 'h-auto min-h-64' : 'h-[calc(100vh-380px)]'}
+                ${isMobile ? 'h-auto min-h-[300px]' : 'h-[calc(100vh-380px)]'}
                 ${isDragging ? 'border-2 border-blue-400' : ''}
+                mx-auto
             `}
         >
             <div
@@ -103,9 +107,12 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
                 className={`
                     flex-grow 
                     overflow-y-auto 
+                    overflow-x-hidden
                     space-y-2 
                     p-1
                     ${isMobile ? 'max-h-64' : ''}
+                    ${list.cards.length === 0 ? 'min-h-[150px] flex flex-col justify-center' : ''}
+                    scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent
                 `}
                 data-type="list"
                 data-id={list.id}
@@ -114,15 +121,109 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
                     items={list.cards.map(card => card.id)}
                     strategy={verticalListSortingStrategy}
                 >
-                    {list.cards.map((card) => (
-                        <SortableCard
-                            key={card.id}
-                            card={card}
-                            listId={list.id}
-                            boardId={boardId}
-                            isMobile={isMobile}
-                        />
-                    ))}
+                    {list.cards.length > 0 ? (
+                        list.cards.map((card, index) => (
+                            <React.Fragment key={card.id}>
+                                {/* カードの上にプレースホルダーを表示（条件を修正） */}
+                                {activeType === 'card' &&
+                                    activeId !== card.id &&
+                                    overListId === list.id &&
+                                    overIndex === index &&
+                                    // 最初のカードの上にあるプレースホルダーのみ表示
+                                    index === 0 &&
+                                    placeholderStyle && (
+                                        <div
+                                            className="animate-pulse border-2 border-dashed border-blue-400 bg-blue-50 rounded-md p-2 my-2"
+                                            style={{
+                                                minHeight: '70px',
+                                                height: 'auto',
+                                                opacity: 0.7
+                                            }}
+                                        >
+                                            <div className="flex items-center justify-center text-blue-400 text-sm p-2">
+                                                カードをここに追加
+                                            </div>
+                                        </div>
+                                    )}
+
+                                <SortableCard
+                                    card={card}
+                                    listId={list.id}
+                                    boardId={boardId}
+                                    isMobile={isMobile}
+                                />
+
+                                {/* カードの下にプレースホルダーを表示 */}
+                                {activeType === 'card' &&
+                                    activeId !== card.id &&
+                                    overListId === list.id &&
+                                    overIndex === index + 1 &&
+                                    // カードの最後の要素では表示しない
+                                    index < list.cards.length - 1 &&
+                                    // またプレースホルダーが重複しないように、自分の下にだけ表示
+                                    (activeId !== list.cards[index + 1]?.id) &&
+                                    placeholderStyle && (
+                                        <div
+                                            className="animate-pulse border-2 border-dashed border-blue-400 bg-blue-50 rounded-md p-2 my-2 mx-auto"
+                                            style={{
+                                                minHeight: '70px',
+                                                maxWidth: '260px',
+                                                width: '100%',
+                                                opacity: 0.7
+                                            }}
+                                        >
+                                            <div className="flex items-center justify-center text-blue-400 text-sm p-2">
+                                                カードをここに追加
+                                            </div>
+                                        </div>
+                                    )}
+                            </React.Fragment>
+                        ))
+                    ) : (
+                        // カードがない場合のプレースホルダー
+                        activeType === 'card' &&
+                            overListId === list.id &&
+                            placeholderStyle ? (
+                            <div className="py-1 flex justify-center items-center h-full">
+                                <div
+                                    className="animate-pulse border-2 border-dashed border-blue-400 bg-blue-50 rounded-md p-2 my-2 mx-auto"
+                                    style={{
+                                        minHeight: '70px',
+                                        maxWidth: '260px',
+                                        width: '100%',
+                                        opacity: 0.7
+                                    }}
+                                >
+                                    <div className="flex items-center justify-center text-blue-400 text-sm p-2">
+                                        カードをここに追加
+                                    </div>
+                                </div>
+                            </div>
+                        ) : <div className="min-h-[70px] w-full flex justify-center items-center my-2">
+                            <div className="text-gray-400 text-sm">カードはありません</div>
+                        </div>
+                    )}
+
+                    {/* リストの末尾にプレースホルダーを表示（カードがある場合のみ） */}
+                    {activeType === 'card' &&
+                        overListId === list.id &&
+                        overIndex === list.cards.length &&
+                        list.cards.length > 0 &&
+                        placeholderStyle && (
+                            <div
+                                className="animate-pulse border-2 border-dashed border-blue-400 bg-blue-50 rounded-md p-2 my-2 mx-auto"
+                                style={{
+                                    minHeight: '70px',
+                                    maxWidth: '260px',
+                                    width: '100%',
+                                    opacity: 0.7
+                                }}
+                            >
+                                <div className="flex items-center justify-center text-blue-400 text-sm p-2">
+                                    カードをここに追加
+                                </div>
+                            </div>
+                        )}
                 </SortableContext>
             </div>
 
