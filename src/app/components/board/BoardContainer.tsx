@@ -127,7 +127,7 @@ function BoardContainer({ boardId }: BoardContainerProps) {
                 )}
 
                 {/* TanStack Table データ表示 - デスクトップとタブレットのみ */}
-                {!isMobile && (
+                {false && !isMobile && (
                     <div className="bg-white p-3 rounded-md shadow-sm overflow-x-auto mb-2">
                         <h3 className="text-lg font-semibold mb-2">リスト概要</h3>
                         <table className="min-w-full border-collapse">
