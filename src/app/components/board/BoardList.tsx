@@ -6,7 +6,6 @@ import { useBoardStore } from '@/app/store/boardStore';
 import Button from '../ui/Button';
 import SortableCard from './SortableCard';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useDragAndDrop } from '@/app/context/DragAndDropContext';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
 interface BoardListProps {
