@@ -249,13 +249,21 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
                     easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
                 }}>
                     {activeId && activeType ? (
-                        <div className="opacity-80 bg-white rounded shadow-lg">
+                        <div className="opacity-80 bg-white rounded shadow-lg transform transition-transform duration-300 ease-in-out">
                             <div className="p-2">
                                 {activeType === 'list' ? '移動中のリスト' : '移動中のカード'}
                             </div>
                         </div>
                     ) : null}
                 </DragOverlay>
+
+                {/* ドラッグ中のインジケーター */}
+                {activeId && (
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="border-2 border-dashed border-blue-400 rounded-md"></div>
+                    </div>
+                )}
+
             </DndContext>
         </DragAndDropContext.Provider>
     );
