@@ -49,7 +49,7 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
                 p-2 
                 flex 
                 flex-col 
-                ${isMobile ? 'h-auto min-h-64' : 'h-[calc(100vh-200px)]'}
+                ${isMobile ? 'h-auto min-h-64' : 'h-[calc(100vh-380px)]'}
                 ${isDragging ? 'border-2 border-blue-400' : ''}
             `}
         >
