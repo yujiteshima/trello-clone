@@ -20,7 +20,7 @@ interface BoardListProps {
 
 function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = false }: BoardListProps) {
     const { updateList, deleteList, addCard } = useBoardStore();
-    const { activeType, activeId, overListId, overIndex, placeholderStyle } = useDragAndDrop();
+    const { activeType, activeId, overListId, overIndex, placeholderStyle, activeListId } = useDragAndDrop();
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(list.title);
     const [isAddingCard, setIsAddingCard] = useState(false);
@@ -131,7 +131,9 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
                                     overIndex === index &&
                                     // 最初のカードの上にあるプレースホルダーのみ表示
                                     index === 0 &&
-                                    placeholderStyle && (
+                                    placeholderStyle &&
+                                    // リスト間の移動時のみプレースホルダーを表示
+                                    activeListId !== list.id && (
                                         <div
                                             className="animate-pulse border-2 border-dashed border-blue-400 bg-blue-50 rounded-md p-2 my-2"
                                             style={{
@@ -162,7 +164,9 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
                                     index < list.cards.length - 1 &&
                                     // またプレースホルダーが重複しないように、自分の下にだけ表示
                                     (activeId !== list.cards[index + 1]?.id) &&
-                                    placeholderStyle && (
+                                    placeholderStyle &&
+                                    // リスト間の移動時のみプレースホルダーを表示
+                                    activeListId !== list.id && (
                                         <div
                                             className="animate-pulse border-2 border-dashed border-blue-400 bg-blue-50 rounded-md p-2 my-2 mx-auto"
                                             style={{
@@ -183,7 +187,9 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
                         // カードがない場合のプレースホルダー
                         activeType === 'card' &&
                             overListId === list.id &&
-                            placeholderStyle ? (
+                            placeholderStyle &&
+                            // リスト間の移動時のみプレースホルダーを表示
+                            activeListId !== list.id ? (
                             <div className="py-1 flex justify-center items-center h-full flex-col">
                                 <div
                                     className="animate-pulse border-2 border-dashed border-blue-400 bg-blue-50 rounded-md p-2 my-2 mx-auto"
@@ -206,12 +212,14 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
                         </div>
                     )}
 
-                    {/* リストの末尾にプレースホルダーを表示（カードがある場合のみ） */}
+                    {/* リストの末尾にプレースホルダーを表示（カードがある場合のみ、かつリスト間移動の場合のみ） */}
                     {activeType === 'card' &&
                         overListId === list.id &&
                         overIndex === list.cards.length &&
                         list.cards.length > 0 &&
-                        placeholderStyle && (
+                        placeholderStyle &&
+                        // activeIdのリストIDとoverListIdが異なる場合のみ表示（リスト間移動時のみ）
+                        activeListId !== list.id && (
                             <div
                                 className="animate-pulse border-2 border-dashed border-blue-400 bg-blue-50 rounded-md p-2 my-2 mx-auto"
                                 style={{

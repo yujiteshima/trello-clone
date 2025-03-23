@@ -173,23 +173,27 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
                 // 挿入位置インデックスを設定（常に下）
                 setOverIndex(overCardIndex + 1);
 
-                // リスト最後尾に追加する場合と同じスタイルを使用
-                setPlaceholderStyle({
-                    minHeight: '70px',
-                    maxWidth: '260px',
-                    width: '100%',
-                    margin: '8px auto',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    border: '2px dashed rgb(59, 130, 246)',
-                    borderRadius: '0.375rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                });
-
-                // リスト間のドラッグなら、現在のリストIDを更新
+                // 同じリスト内でのドラッグの場合はプレースホルダーを表示しない、リスト間移動の場合のみ表示
                 if (sourceListId !== targetListId) {
+                    // リスト間のドラッグ時はプレースホルダーを表示
+                    setPlaceholderStyle({
+                        minHeight: '70px',
+                        maxWidth: '260px',
+                        width: '100%',
+                        margin: '8px auto',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        border: '2px dashed rgb(59, 130, 246)',
+                        borderRadius: '0.375rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    });
+
+                    // 現在のリストIDを更新
                     setActiveListId(targetListId);
+                } else {
+                    // 同じリスト内ではプレースホルダーを表示しない
+                    setPlaceholderStyle(null);
                 }
             }
         }
