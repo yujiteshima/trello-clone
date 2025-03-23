@@ -37,6 +37,21 @@ export default function Home() {
         </Button>
       </div>
 
+      <Card className="mb-6">
+        <h2 className="text-lg font-semibold mb-2">このアプリについて</h2>
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+          ドラッグアンドドロップ機能を備えたTrelloライクなカンバンボードアプリです。
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs rounded-full">Next.js 15</span>
+          <span className="px-2 py-1 bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-100 text-xs rounded-full">React 19</span>
+          <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100 text-xs rounded-full">TailwindCSS</span>
+          <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-xs rounded-full">TanStack Table</span>
+          <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 text-xs rounded-full">dnd-kit</span>
+          <span className="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 text-xs rounded-full">Zustand</span>
+        </div>
+      </Card>
+
       {isCreating && (
         <Card className="p-4">
           <h2 className="text-lg font-semibold mb-4">新しいボード</h2>
