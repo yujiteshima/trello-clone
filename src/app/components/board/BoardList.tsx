@@ -20,7 +20,7 @@ interface BoardListProps {
 
 function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = false }: BoardListProps) {
     const { updateList, deleteList, addCard } = useBoardStore();
-    const { activeType, activeId, overListId, overIndex, placeholderStyle } = useDragAndDrop();
+    const { activeType, activeId, overListId, overIndex, placeholderStyle, activeListId } = useDragAndDrop();
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(list.title);
     const [isAddingCard, setIsAddingCard] = useState(false);
@@ -124,13 +124,13 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
                     {list.cards.length > 0 ? (
                         list.cards.map((card, index) => (
                             <React.Fragment key={card.id}>
-                                {/* カードの上にプレースホルダーを表示（条件を修正） */}
+                                {/* カードの上にプレースホルダーを表示（異なるリスト間のみ） */}
                                 {activeType === 'card' &&
                                     activeId !== card.id &&
                                     overListId === list.id &&
                                     overIndex === index &&
-                                    // 最初のカードの上にあるプレースホルダーのみ表示
-                                    index === 0 &&
+                                    // 同じリスト内の移動では表示しない、異なるリスト間の移動では表示する
+                                    activeListId !== list.id &&
                                     placeholderStyle && (
                                         <div
                                             className="animate-pulse border-2 border-dashed border-blue-400 bg-blue-50 rounded-md p-2 my-2"
@@ -158,10 +158,19 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
                                     activeId !== card.id &&
                                     overListId === list.id &&
                                     overIndex === index + 1 &&
-                                    // カードの最後の要素では表示しない
-                                    index < list.cards.length - 1 &&
-                                    // またプレースホルダーが重複しないように、自分の下にだけ表示
-                                    (activeId !== list.cards[index + 1]?.id) &&
+                                    // 同じリスト内の移動と異なるリスト間の移動で条件分岐
+                                    (() => {
+                                        // 同じリスト内の移動の場合
+                                        if (activeListId === list.id) {
+                                            // 条件: 一番下のカードの下に移動するとき、かつ、ドラッグしているのが一番下のカード以外
+                                            const isLastCard = index === list.cards.length - 1;
+                                            const isActiveLastCard = list.cards.findIndex(c => c.id === activeId) === list.cards.length - 1;
+                                            return isLastCard && !isActiveLastCard;
+                                        }
+                                        // 異なるリスト間の移動の場合は、カード間のプレイスホルダーを表示
+                                        // ただし、最後のカードの場合でも表示する
+                                        return true;
+                                    })() &&
                                     placeholderStyle && (
                                         <div
                                             className="animate-pulse border-2 border-dashed border-blue-400 bg-blue-50 rounded-md p-2 my-2 mx-auto"
@@ -211,6 +220,18 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
                         overListId === list.id &&
                         overIndex === list.cards.length &&
                         list.cards.length > 0 &&
+                        // 同じリスト内の移動と異なるリスト間の移動で条件分岐
+                        (() => {
+                            // 同じリスト内のドラッグの場合
+                            if (activeListId === list.id) {
+                                // ドラッグ中のカードが最後のカードでない場合のみ表示
+                                const activeCardIndex = list.cards.findIndex(card => card.id === activeId);
+                                const lastCardIndex = list.cards.length - 1;
+                                return activeCardIndex !== lastCardIndex;
+                            }
+                            // 異なるリスト間のドラッグの場合は表示しない（最後のカードの下で表示されるため）
+                            return false;
+                        })() &&
                         placeholderStyle && (
                             <div
                                 className="animate-pulse border-2 border-dashed border-blue-400 bg-blue-50 rounded-md p-2 my-2 mx-auto"
