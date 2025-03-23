@@ -169,13 +169,18 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
                 // 対象のカード情報を取得
                 const targetList = currentBoard?.lists.find(list => list.id === targetListId);
                 const overCardIndex = targetList?.cards.findIndex(card => card.id === overId) || 0;
+                const activeCardIndex = sourceListId === targetListId ?
+                    targetList?.cards.findIndex(card => card.id === activeId) || 0 : -1;
+                const isLastCardToLastPosition =
+                    sourceListId === targetListId &&
+                    activeCardIndex === (targetList?.cards.length || 0) - 1 &&
+                    overCardIndex === (targetList?.cards.length || 0) - 1;
 
                 // 挿入位置インデックスを設定（常に下）
                 setOverIndex(overCardIndex + 1);
 
-                // 同じリスト内でのドラッグの場合はプレースホルダーを表示しない、リスト間移動の場合のみ表示
-                if (sourceListId !== targetListId) {
-                    // リスト間のドラッグ時はプレースホルダーを表示
+                // リスト間移動の場合、または一番下のカードを一番下に移動する場合以外はプレースホルダーを表示
+                if (sourceListId !== targetListId || !isLastCardToLastPosition) {
                     setPlaceholderStyle({
                         minHeight: '70px',
                         maxWidth: '260px',
@@ -188,12 +193,14 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
                         alignItems: 'center',
                         justifyContent: 'center'
                     });
-
-                    // 現在のリストIDを更新
-                    setActiveListId(targetListId);
                 } else {
-                    // 同じリスト内ではプレースホルダーを表示しない
+                    // 一番下のカードを一番下に移動する場合はプレースホルダーを表示しない
                     setPlaceholderStyle(null);
+                }
+
+                // リスト間のドラッグなら、現在のリストIDを更新
+                if (sourceListId !== targetListId) {
+                    setActiveListId(targetListId);
                 }
             }
         }
