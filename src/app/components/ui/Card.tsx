@@ -9,7 +9,7 @@ interface CardProps {
 function Card({ children, className = '', onClick }: CardProps) {
     return (
         <div
-            className={`bg-white rounded-md shadow-sm p-4 break-words overflow-hidden max-w-full ${className}`}
+            className={`bg-white dark:bg-gray-800 dark:text-gray-100 rounded-md shadow-sm p-4 break-words overflow-hidden max-w-full ${className}`}
             onClick={onClick}
         >
             {children}

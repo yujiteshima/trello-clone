@@ -46,7 +46,7 @@ export default function Home() {
               value={newBoardTitle}
               onChange={(e) => setNewBoardTitle(e.target.value)}
               placeholder="ボードのタイトルを入力"
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded"
               autoFocus
             />
             <div className={`${isMobile ? 'flex flex-col space-y-2' : 'flex space-x-2'}`}>
@@ -73,7 +73,7 @@ export default function Home() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {boards.length === 0 ? (
-          <p className="col-span-full text-center text-gray-500 py-8">
+          <p className="col-span-full text-center text-gray-500 dark:text-gray-400 py-8">
             まだボードがありません。新しいボードを作成してください。
           </p>
         ) : (
@@ -81,11 +81,11 @@ export default function Home() {
             <Link href={`/board/${board.id}`} key={board.id} className="w-full">
               <Card className="h-32 hover:shadow-md transition-shadow cursor-pointer">
                 <h2 className="text-lg font-semibold">{board.title}</h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {board.lists.length}リスト ·
                   {board.lists.reduce((acc, list) => acc + list.cards.length, 0)}カード
                 </p>
-                <p className="text-xs text-gray-400 mt-2">
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                   作成: {new Date(board.createdAt).toLocaleDateString()}
                 </p>
               </Card>
