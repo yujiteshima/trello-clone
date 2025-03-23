@@ -184,20 +184,22 @@ function BoardList({ list, boardId, dragHandleProps, isDragging, isMobile = fals
                         activeType === 'card' &&
                             overListId === list.id &&
                             placeholderStyle ? (
-                            <div className="py-1 flex justify-center items-center h-full">
+                            <div className="py-1 flex justify-center items-center h-full flex-col">
                                 <div
                                     className="animate-pulse border-2 border-dashed border-blue-400 bg-blue-50 rounded-md p-2 my-2 mx-auto"
                                     style={{
                                         minHeight: '70px',
                                         maxWidth: '260px',
                                         width: '100%',
-                                        opacity: 0.7
+                                        opacity: 0.7,
+                                        alignSelf: 'flex-start'
                                     }}
                                 >
                                     <div className="flex items-center justify-center text-blue-400 text-sm p-2">
                                         カードをここに追加
                                     </div>
                                 </div>
+                                <div className="flex-grow"></div>
                             </div>
                         ) : <div className="min-h-[70px] w-full flex justify-center items-center my-2">
                             <div className="text-gray-400 text-sm">カードはありません</div>
