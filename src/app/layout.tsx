@@ -29,7 +29,12 @@ export default function RootLayout({
           {children}
         </main>
         <footer className="mt-auto p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
-          <p>© {new Date().getFullYear()} Trello Clone: ドラッグアンドドロップの練習用アプリ created by @yujiteshima</p>
+          <div className="space-y-2">
+            <p>© {new Date().getFullYear()} Trello Clone: ドラッグアンドドロップの練習用アプリ created by @yujiteshima</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              技術スタック: Next.js 15 | React 19 | TailwindCSS | TanStack Table | dnd-kit | Zustand
+            </p>
+          </div>
         </footer>
       </body>
     </html>
