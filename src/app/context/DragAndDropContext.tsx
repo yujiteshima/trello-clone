@@ -169,23 +169,85 @@ export function DragAndDropProvider({ children }: DragAndDropContextProps) {
                 // 対象のカード情報を取得
                 const targetList = currentBoard?.lists.find(list => list.id === targetListId);
                 const overCardIndex = targetList?.cards.findIndex(card => card.id === overId) || 0;
+                const targetCardIndex = targetList?.cards.findIndex(card => card.id === overId) || 0;
 
-                // 挿入位置インデックスを設定（常に下）
-                setOverIndex(overCardIndex + 1);
+                // 同じリスト内でのドラッグの特別な処理
+                if (sourceListId === targetListId) {
+                    // ドラッグ中のカードの元の位置を取得
+                    const activeList = currentBoard?.lists.find(list => list.id === sourceListId);
+                    const activeCardIndex = activeList?.cards.findIndex(card => card.id === activeId) || 0;
 
-                // リスト最後尾に追加する場合と同じスタイルを使用
-                setPlaceholderStyle({
-                    minHeight: '70px',
-                    maxWidth: '260px',
-                    width: '100%',
-                    margin: '8px auto',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    border: '2px dashed rgb(59, 130, 246)',
-                    borderRadius: '0.375rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                });
+                    // 最後のカードのインデックスを取得
+                    const lastCardIndex = (activeList?.cards.length || 0) - 1;
+
+                    // 条件：
+                    // 1. ドラッグ中のカードが最後のカードではない
+                    // 2. ターゲットカードが最後のカード
+                    // 3. ドラッグ中のカードがターゲットカード（最後のカード）より前にある
+                    if (activeCardIndex !== lastCardIndex &&
+                        targetCardIndex === lastCardIndex &&
+                        activeCardIndex < targetCardIndex) {
+                        // 最後のカードの下に挿入
+                        setOverIndex(targetCardIndex + 1);
+
+                        // プレースホルダーのスタイルを設定
+                        setPlaceholderStyle({
+                            minHeight: '70px',
+                            maxWidth: '260px',
+                            width: '100%',
+                            margin: '8px auto',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            border: '2px dashed rgb(59, 130, 246)',
+                            borderRadius: '0.375rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        });
+                    } else {
+                        // その他の場合はプレースホルダーを表示しない
+                        setOverIndex(null);
+                        setPlaceholderStyle(null);
+                        return;
+                    }
+                } else {
+                    // 異なるリスト間のドラッグの場合
+                    // マウスポインタの位置に基づいて上下を決定
+                    // 簡略化のため、カードの中点よりも上にドラッグしたら上に、下にドラッグしたら下に配置
+                    const { over: overRect } = event;
+                    if (overRect && overRect.rect) {
+                        const overRect_y = overRect.rect.top;
+                        const overRect_height = overRect.rect.height;
+                        const mouse_y = 'clientY' in event.activatorEvent
+                            ? (event.activatorEvent as MouseEvent).clientY
+                            : overRect.rect.top + overRect.rect.height / 2; // フォールバック
+
+                        // カードの上部1/3にドラッグした場合は上に、それ以外は下に配置
+                        if (mouse_y < overRect_y + overRect_height / 3) {
+                            // カードの上に挿入
+                            setOverIndex(overCardIndex);
+                        } else {
+                            // カードの下に挿入
+                            setOverIndex(overCardIndex + 1);
+                        }
+                    } else {
+                        // 位置情報が取得できない場合はデフォルトで下に挿入
+                        setOverIndex(overCardIndex + 1);
+                    }
+
+                    // プレースホルダーのスタイルを設定
+                    setPlaceholderStyle({
+                        minHeight: '70px',
+                        maxWidth: '260px',
+                        width: '100%',
+                        margin: '8px auto',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        border: '2px dashed rgb(59, 130, 246)',
+                        borderRadius: '0.375rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    });
+                }
 
                 // リスト間のドラッグなら、現在のリストIDを更新
                 if (sourceListId !== targetListId) {
